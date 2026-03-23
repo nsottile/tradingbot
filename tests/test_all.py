@@ -533,7 +533,7 @@ class TestSchemaValidation:
             skipped=False,
         )
         with pytest.raises(Exception):
-            object.__setattr__(decision, "market_id", "other")  # Should raise
+            decision.market_id = "other"  # Should raise on frozen model
 
     def test_signal_probabilities_all_none(self) -> None:
         sp = SignalProbabilities()

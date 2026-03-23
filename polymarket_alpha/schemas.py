@@ -9,7 +9,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Action(str, Enum):
@@ -49,8 +49,7 @@ class MarketSnapshot(BaseModel):
             return 0.5
         return max(0.0, min(1.0, f))
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class SignalProbabilities(BaseModel):
@@ -61,8 +60,7 @@ class SignalProbabilities(BaseModel):
     heuristic: Optional[float] = None
     ensemble: Optional[float] = None
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class TradeDecision(BaseModel):
@@ -83,8 +81,7 @@ class TradeDecision(BaseModel):
     skipped: bool = False
     skip_reason: Optional[str] = None
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class LLMSignal(BaseModel):
@@ -102,8 +99,7 @@ class LLMSignal(BaseModel):
     raw_prompt: str = ""
     raw_response: str = ""
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class BacktestTrade(BaseModel):
@@ -123,8 +119,7 @@ class BacktestTrade(BaseModel):
     resolved: bool = False
     correct_direction: Optional[bool] = None
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class CalibrationMetrics(BaseModel):
@@ -138,8 +133,7 @@ class CalibrationMetrics(BaseModel):
     ece: float  # Expected Calibration Error
     overconfidence: float  # mean predicted - mean actual
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class RiskState(BaseModel):
@@ -156,5 +150,4 @@ class RiskState(BaseModel):
     halted: bool = False
     halt_reason: Optional[str] = None
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)

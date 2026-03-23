@@ -99,3 +99,15 @@ def log_decision(
         payload.update(extra)
 
     logger.info("trade_decision", extra=payload)
+
+
+def log_autonomous_event(
+    logger: logging.Logger,
+    event: str,
+    payload: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Structured event logging for autonomous runtime loop."""
+    body: Dict[str, Any] = {"event": event}
+    if payload:
+        body.update(payload)
+    logger.info(event, extra=body)

@@ -220,7 +220,7 @@ class FeatureBuilder:
             # High spread relative to price suggests low conviction
             "high_relative_spread": float(snap.spread / (p + 1e-9) > 0.15),
             # No resolution date – harder to arbitrage timing
-            "no_resolution_date": float(snap.resolution_date is None),
+            "missing_expiry_date": float(snap.resolution_date is None),
         }
 
 

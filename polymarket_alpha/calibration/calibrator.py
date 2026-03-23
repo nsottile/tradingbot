@@ -146,7 +146,7 @@ class Calibrator:
         y = np.array(outcomes, dtype=float)
 
         brier = brier_score_loss(y, X)
-        ll = log_loss(y, X, eps=1e-7)
+        ll = log_loss(y, X)
         ece = self._compute_ece(X, y)
         overconf = float(np.mean(X) - np.mean(y))
 
