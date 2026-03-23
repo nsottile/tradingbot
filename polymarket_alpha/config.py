@@ -73,6 +73,24 @@ class Config(BaseSettings):
     # --- Execution ---
     paper_trading: bool = True            # ALWAYS start in paper mode
     initial_bankroll: float = 10_000.0
+    # Master env gate: live order routing disabled unless true (in addition to UI + paper_trading=false)
+    enable_live_trading: bool = Field(default=False, env="ENABLE_LIVE_TRADING")
+    max_order_notional_usd: float = Field(default=5_000.0, env="MAX_ORDER_NOTIONAL_USD")
+
+    # --- Alpaca (stocks) ---
+    alpaca_api_key: Optional[str] = Field(default=None, env="ALPACA_API_KEY")
+    alpaca_api_secret: Optional[str] = Field(default=None, env="ALPACA_API_SECRET")
+    alpaca_base_url: Optional[str] = Field(default=None, env="ALPACA_BASE_URL")
+
+    # --- Binance (crypto stub) ---
+    binance_api_key: Optional[str] = Field(default=None, env="BINANCE_API_KEY")
+    binance_api_secret: Optional[str] = Field(default=None, env="BINANCE_API_SECRET")
+    binance_rest_url: Optional[str] = Field(default=None, env="BINANCE_REST_URL")
+
+    # --- Stripe (billing scaffold; no secrets in UI) ---
+    stripe_secret_key: Optional[str] = Field(default=None, env="STRIPE_SECRET_KEY")
+    stripe_webhook_secret: Optional[str] = Field(default=None, env="STRIPE_WEBHOOK_SECRET")
+    stripe_price_credits_id: Optional[str] = Field(default=None, env="STRIPE_PRICE_CREDITS_ID")
 
     # --- Calibration ---
     calibration_min_samples: int = 30

@@ -21,6 +21,7 @@ class NormalizedMarketSnapshot(BaseModel):
     symbol: str
     source: str
     asset_class: AssetClass
+    venue: str = "polymarket"  # routing key for ExecutionRouter
     name: str
     category: str = "unknown"
     price: float = Field(ge=0.0)
@@ -31,6 +32,8 @@ class NormalizedMarketSnapshot(BaseModel):
     volatility_24h: float = Field(ge=0.0, default=0.0)
     liquidity: float = Field(ge=0.0, default=0.0)
     sentiment_score: Optional[float] = None
+    base_quote: Optional[str] = None  # e.g. BTCUSDT for crypto
+    tick_size: Optional[float] = None
     timestamp: datetime
     raw_payload: Dict[str, Any] = Field(default_factory=dict)
 

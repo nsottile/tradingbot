@@ -317,9 +317,36 @@ All parameters can be overridden via environment variables (uppercased).
 
 ---
 
+## Multi-venue platform (brokers, router, terminal UI)
+
+The package includes a **broker abstraction** (`polymarket_alpha/brokers/`) and an **execution router** (`polymarket_alpha/engine/router.py`) that sends orders to:
+
+- **Paper** — `PortfolioLedger` (default, simulation).
+- **Polymarket CLOB** — live path when all gates allow (see below).
+- **Alpaca** / **Binance** / **Sports** — stubs or partial implementations; extend with signed requests and your compliance review.
+
+**Streamlit UI** (`polymarket_alpha/ui/`) provides a Hyperliquid-inspired **terminal** layout: Trade, Markets, Portfolio, History, Control, **AI Chat** (Anthropic), and **Billing** (Stripe scaffold).
+
+### Live trading gates (all required)
+
+1. Environment: `ENABLE_LIVE_TRADING=true` and `PAPER_TRADING=false`.
+2. UI: **Simulation** toggle off, **Live trading confirmed** checkbox on, **Kill switch** off.
+3. Venue credentials (e.g. Polymarket API keys) set in environment — **never** in the UI.
+
+Optional: `MAX_ORDER_NOTIONAL_USD` caps each autonomous order.
+
+### Stripe / webhooks
+
+`polymarket_alpha/payments/stripe_scaffold.py` can create Checkout Sessions when `STRIPE_SECRET_KEY` and `STRIPE_PRICE_CREDITS_ID` are set. **Stripe webhooks require an HTTPS endpoint** — Streamlit alone cannot receive them. Use a small FastAPI service, Cloud Function, or a future Next.js app and verify signatures with `STRIPE_WEBHOOK_SECRET`.
+
+### Streamlit Cloud
+
+Main module path: `polymarket_alpha/dashboard/app.py`
+
+---
+
 ## License
 
 MIT. See LICENSE.
 
 This project is not affiliated with Polymarket or Anthropic.
-# tradingbot

@@ -35,12 +35,18 @@ class PolymarketProvider(BaseMarketProvider):
         out: List[NormalizedMarketSnapshot] = []
         for snap in snapshots:
             price = max(0.0, min(1.0, snap.mid_price))
+            payload = dict(snap.raw_payload)
+            payload["_yes_token_id"] = snap.yes_token_id
+            payload["_no_token_id"] = snap.no_token_id
+            payload["_yes_price"] = snap.yes_price
+            payload["_no_price"] = snap.no_price
             out.append(
                 NormalizedMarketSnapshot(
                     market_id=snap.market_id,
                     symbol=snap.market_id,
                     source=self.source_name,
                     asset_class=self.asset_class,
+                    venue="polymarket",
                     name=snap.question,
                     category=snap.category,
                     price=price,
@@ -50,7 +56,7 @@ class PolymarketProvider(BaseMarketProvider):
                     volume_24h=snap.volume,
                     liquidity=snap.liquidity,
                     timestamp=snap.timestamp,
-                    raw_payload=snap.raw_payload,
+                    raw_payload=payload,
                 )
             )
         return out

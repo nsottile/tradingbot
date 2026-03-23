@@ -12,6 +12,7 @@ from polymarket_alpha.data.schemas import NormalizedMarketSnapshot
 from polymarket_alpha.engine.analytics import compute_metrics
 from polymarket_alpha.engine.control import AIControlState
 from polymarket_alpha.engine.ledger import PortfolioLedger
+from polymarket_alpha.engine.router import ExecutionRouter
 from polymarket_alpha.engine.risk import RISK_PROFILES, position_size
 from polymarket_alpha.schemas import Action, SignalProbabilities, TradeDecision
 from polymarket_alpha.strategies.engine import StrategyEngine
@@ -22,7 +23,7 @@ logger = get_logger(__name__)
 
 
 class AutonomousTradingEngine:
-    """Autonomous fetch->analyze->decide->execute->log loop (paper mode)."""
+    """Autonomous fetch→analyze→decide→execute→log loop; routes via ExecutionRouter (paper or live)."""
 
     def __init__(self) -> None:
         cfg = get_config()
@@ -31,12 +32,13 @@ class AutonomousTradingEngine:
         self._data = UnifiedMarketDataPipeline()
         self._repo = TradingRepository()
         self._strategy = StrategyEngine()
+        self.ledger = PortfolioLedger(initial_capital=cfg.initial_bankroll)
         self.control = AIControlState(
             risk_level=runtime_cfg.default_risk_level,
             strategy_name=runtime_cfg.default_strategy,
             interval_seconds=runtime_cfg.default_loop_interval_seconds or cfg.poll_interval_seconds,
         )
-        self.ledger = PortfolioLedger(initial_capital=cfg.initial_bankroll)
+        self._router = ExecutionRouter(self.ledger, self.control)
         self.history: Dict[str, List[NormalizedMarketSnapshot]] = defaultdict(list)
         self.activity_feed: List[str] = []
         self.equity_curve: List[float] = [cfg.initial_bankroll]
@@ -66,10 +68,21 @@ class AutonomousTradingEngine:
             if policy["should_trade"] > 0 and size > 0:
                 action = Action.BUY_YES
                 reason = "Hybrid policy approved"
-                self.ledger.execute_buy(snap.market_id, snap.symbol, size, snap.price)
-                self.activity_feed.append(
-                    f"AI bought {snap.symbol} at {snap.price:.4f} ({datetime.now(timezone.utc).isoformat()})"
-                )
+                paper_before = self._router.uses_paper_path()
+                exec_res = self._router.route_buy_prediction(snap, size, snap.price)
+                if exec_res.success:
+                    if not paper_before:
+                        # Mirror fill into ledger for dashboard PnL (exchange is source of truth for risk)
+                        self.ledger.execute_buy(snap.market_id, snap.symbol, size, snap.price)
+                    mode = "paper" if paper_before else "live"
+                    self.activity_feed.append(
+                        f"[{mode}] AI bought {snap.symbol} @ {snap.price:.4f} — {exec_res.message}"
+                        f" ({datetime.now(timezone.utc).isoformat()})"
+                    )
+                else:
+                    action = Action.SKIP
+                    reason = f"Execution failed: {exec_res.message}"
+                    self.activity_feed.append(f"Skip {snap.symbol}: {exec_res.message}")
 
             self.ledger.maybe_stop_loss(snap.market_id, risk_profile.stop_loss_pct)
             decision = TradeDecision(
