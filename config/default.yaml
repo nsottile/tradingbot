@@ -1,0 +1,43 @@
+# polymarket_alpha configuration
+# Override any value via environment variable (UPPERCASED)
+# NEVER put credentials here — use .env or environment variables
+
+# --- Collection ---
+poll_interval_seconds: 60
+max_markets_per_poll: 500
+stale_data_threshold_seconds: 300
+
+# --- Signal ---
+llm_enabled: true
+llm_model: "claude-opus-4-5"
+llm_timeout_seconds: 30
+llm_retry_attempts: 2
+
+# --- Edge / Risk ---
+edge_threshold: 0.04
+kelly_fraction: 0.25          # FRACTIONAL Kelly only
+max_position_pct: 0.05        # 5% of bankroll per market
+max_category_exposure_pct: 0.20
+max_daily_loss_pct: 0.05
+max_drawdown_pct: 0.15
+min_liquidity: 500.0
+max_spread: 0.08
+slippage_estimate: 0.005
+fee_estimate: 0.02
+min_confidence: 0.50
+
+# --- Execution ---
+paper_trading: true            # ALWAYS true until manually verified
+initial_bankroll: 10000.0
+
+# --- Calibration ---
+calibration_min_samples: 30
+calibration_drift_threshold: 0.05
+
+# --- Logging ---
+log_level: "INFO"
+log_json: true
+
+# --- Backtest ---
+backtest_start_date: "2023-01-01"
+backtest_end_date: "2024-01-01"
