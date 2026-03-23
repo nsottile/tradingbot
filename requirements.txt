@@ -1,5 +1,5 @@
-# Install this repo as a package (Streamlit Cloud / CI need this for `import polymarket_alpha`)
--e .
+# NOTE: Do not use `-e .` here — Streamlit Cloud's uv/pip + Python 3.14 can fail on legacy
+# setuptools backends. Imports work via `sys.path` bootstrap in `polymarket_alpha/dashboard/app.py`.
 
 # Core
 requests>=2.31.0

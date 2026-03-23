@@ -56,10 +56,14 @@ _agent_log(
 
 try:
     from polymarket_alpha.ui.app import render_app
-except ModuleNotFoundError as exc:
-    _agent_log("import_failed", {"error": str(exc), "name": getattr(exc, "name", None)}, "C")
+except (ModuleNotFoundError, ImportError) as exc:
+    _agent_log(
+        "import_failed",
+        {"error": str(exc), "exc_type": type(exc).__name__, "name": getattr(exc, "name", None)},
+        "C",
+    )
     raise
 
-_agent_log("import_ok", {"module": "polymarket_alpha.ui.app"}, "C")
+_agent_log("import_ok", {"module": "polymarket_alpha.ui.app", "has_render_app": callable(render_app)}, "C")
 
 render_app()
